@@ -6,6 +6,10 @@
   "scripts": {
     "test": "mocha test.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ndchristie/undeep.git"
+  },
   "author": "N.D.Christie",
   "license": "ISC",
   "devDependencies": {
