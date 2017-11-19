@@ -42,13 +42,13 @@ describe('undeep', function () {
     assert.equal(undeep(testTarget, 'childObj', 'arr', '0'), 1);
   });
   it('Works with functions', function () {
+    // constructors
     assert.equal(undeep(testTarget, 'childObj', 'Array'), Array);
     assert.equal(undeep(testTarget, 'childObj', 'Array', 'name'), Array.name);
     assert.equal(undeep(testTarget, 'childObj', 'Array'), testTarget.childObj.Array);
-
-    var myInstanceMethod = undeep(testTarget, 'childObj', 'Array', 'prototype', 'slice');
-    assert.equal(myInstanceMethod, [].slice);
-
+    // instance methods
+    assert.equal(undeep(testTarget, 'childObj', 'Array', 'prototype', 'slice'), [].slice);
+    // anonymous functions
     assert.equal(undeep(testTarget, 'childObj', 'anon'), testTarget.childObj.anon);
     assert.equal(undeep(testTarget, 'childObj', 'anon', 'name'), testTarget.childObj.anon.name);
   });
@@ -57,6 +57,10 @@ describe('undeep', function () {
   });
   it('Works with getters', function () {
     assert.equal(undeep(testTarget, 'computed'), 7);
+  });
+  it('Takes a function for computed keys', function () {
+    assert.equal(undeep([0, 1, 2, 3], function (v) { return v.length - 1; }), 3);
+    assert.equal(undeep({ foo: 'bar', 0: 0 }, function (v) { return Object.keys(v)[0]; }), 0);
   });
   // error swallowing
   it('Returns undefined if any member is not found', function () {
@@ -69,6 +73,9 @@ describe('undeep', function () {
   });
   it('Returns undefined if getter contains error', function () {
     assert.equal(undeep(testTarget, 'sabotaged'), undefined);
+  });
+  it('Returns undefined if key function encounters error', function () {
+    assert.equal(undeep({}, function () { throw new Error('Error in key computer'); }), undefined);
   });
   // caveats
   it ('Considers any object passed as a key to be the string \'[object Object]\'', function() {

@@ -15,7 +15,7 @@ $ npm install --save lpad
 
 ## Usage
 
-```js
+``` js
 const undeep = require('undeep');
 
 const target = {
@@ -36,6 +36,8 @@ undeep(target, 'undef', 'cannot get properties of undefined');
 // undefined
 undeep(null, 'cannot get properties of null');
 // undefined
+undeep([0, 1, 2, 3], arr => arr.length - 1);
+// 3
 ```
 
 
@@ -52,6 +54,8 @@ Starting object to be searched.  Passing a non-object will search the implicit o
 #### keys
 
 Keys to search for in order.  Each returned value is searched for the following key. The function will return when keys are exhausted.  If no keys are passed, the target object is returned.
+
+Keys may be computed from the preceeding value by passing a function instead of a primitive.
 
 ## License
 
