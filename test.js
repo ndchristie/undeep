@@ -1,4 +1,8 @@
+/* eslint-env node */
+/* eslint-disable no-console */
+
 var assert = require('assert');
+var sinon = require('sinon');
 var undeep = require('./');
 var underp = require('./underp');
 
@@ -79,7 +83,7 @@ describe('undeep', function () {
     assert.equal(undeep({}, function () { throw new Error('Error in key computer'); }), undefined);
   });
   // caveats
-  it ('Considers any object passed as a key to be the string \'[object Object]\'', function() {
+  it ('Considers any object passed as a key to be the string "[object Object]"', function() {
     var objectA = { foo: 'bar', };
     var objectB = { fizz: 'bang', };
     var testObject = { '[object Object]': 11, };
@@ -88,6 +92,7 @@ describe('undeep', function () {
   });
 });
 describe('underp', function () {
+  var consoleError, consoleWarn;
   var testTarget = {
     childObj: {
       bool: true,
@@ -106,6 +111,19 @@ describe('underp', function () {
       get: function () { throw new Error('Listen all y\'all it\'s a sabotage'); },
     },
   });
+
+  beforeEach(function () {
+    // stubs
+    consoleError = sinon.stub(console, 'error');
+    consoleWarn = sinon.stub(console, 'warn');
+  });
+
+  afterEach(function () {
+    // stubs
+    consoleError.restore();
+    consoleWarn.restore();
+  });
+
   // basic cases
   it('Returns the target object in the absence of additonal args', function () {
     assert.equal(underp(testTarget), testTarget);
@@ -115,16 +133,28 @@ describe('underp', function () {
     assert.equal(underp(testTarget, 'childObj', 'bool'), testTarget.childObj.bool);
   });
   // error swallowing
-  it('Returns TypeError if inspecting undefined', function () {
-    assert(underp(testTarget, 'childObj', 'undef', 'undef') instanceof TypeError);
+  it('Prints error if inspecting undefined', function () {
+    underp(testTarget, 'childObj', 'undef', 'undef');
+    assert(consoleError.calledOnce);
   });
-  it('Returns TypeError if inspecting null', function () {
-    assert(underp(testTarget, 'childObj', 'empty', 'illegal') instanceof TypeError);
+  it('Prints error if inspecting null', function () {
+    underp(testTarget, 'childObj', 'empty', 'illegal');
+    assert(consoleError.calledOnce);
   });
-  it('Returns Error if getter contains error', function () {
-    assert(underp(testTarget, 'sabotaged') instanceof Error);
+  it('Prints error if getter contains error', function () {
+    underp(testTarget, 'sabotaged');
+    assert(consoleError.calledOnce);
   });
-  it('Returns Error if key function encounters error', function () {
-    assert(underp({}, function () { throw new Error('Error in key computer'); }) instanceof Error);
+  it('Prints error if key function encounters error', function () {
+    underp({}, function () { throw new Error('Error in key computer'); });
+    assert(consoleError.calledOnce);
+  });
+  it('Prints error if key function encounters error', function () {
+    underp({}, function () { throw new Error('Error in key computer'); });
+    assert(consoleError.calledOnce);
+  });
+  it('Warns when object key results in "[object Object]"', function () {
+    underp({}, {});
+    assert(consoleWarn.calledOnce);
   });
 });
