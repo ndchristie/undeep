@@ -6,7 +6,7 @@
 
 Attempting to access deeply nested values whose ancestors may not exist can cause undesirable errors.  In many cases, it would be enough to know that the value is not defined.  Undeep swallows these errors, returning the desired value or ```undefined```.
 
-Sometimes along the way we want to compute a key, e.g., the last index in an array, before continuing.  Passing a key function allows us to do this.  Key functions should be safe and side-effect-free; see [caveats](#cavets).
+Sometimes along the way we want to compute a key, e.g., the last index in an array, before continuing.  Passing a key function allows us to do this.  Key functions should be safe and side-effect-free; see [caveats](#caveats).
 
 ## Install
 
@@ -67,7 +67,7 @@ Each key should be a primitive value or function.  Most objects passed as keys w
 
 ## Underp
 
-Instead of ```undefined```, ```underp()``` logs (without throwing) any error it catches along the way.  Underp should only be used for debugging.
+Underp logs (without throwing) any error it catches along the way.  Underp should only be used for debugging.
 
 ## License
 
