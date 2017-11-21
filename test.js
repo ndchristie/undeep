@@ -1,5 +1,6 @@
 var assert = require('assert');
 var undeep = require('./');
+var underp = require('./underp');
 
 describe('undeep', function () {
   var testTarget = {
@@ -17,7 +18,7 @@ describe('undeep', function () {
       get: function () { return 7; }
     },
     sabotaged: {
-      get: function () { throw new TypeError('Listen all y\'all it\'s a sabotage'); },
+      get: function () { throw new Error('Listen all y\'all it\'s a sabotage'); },
     },
   });
   // basic cases
@@ -84,5 +85,46 @@ describe('undeep', function () {
     var testObject = { '[object Object]': 11, };
     assert.equal(undeep(testObject, objectA), 11);
     assert.equal(undeep(testObject, objectB), 11);
+  });
+});
+describe('underp', function () {
+  var testTarget = {
+    childObj: {
+      bool: true,
+      arr: [1, 0, { x: 5, y: 2 }],
+      empty: null,
+      Array: Array,
+      anon: function () { /* do nothing */ },
+    },
+  };
+  testTarget.circular = testTarget;
+  Object.defineProperties(testTarget, {
+    computed: {
+      get: function () { return 7; }
+    },
+    sabotaged: {
+      get: function () { throw new Error('Listen all y\'all it\'s a sabotage'); },
+    },
+  });
+  // basic cases
+  it('Returns the target object in the absence of additonal args', function () {
+    assert.equal(underp(testTarget), testTarget);
+  });
+  it('Returns deep members of the target object', function () {
+    assert.equal(underp(testTarget, 'childObj'), testTarget.childObj);
+    assert.equal(underp(testTarget, 'childObj', 'bool'), testTarget.childObj.bool);
+  });
+  // error swallowing
+  it('Returns TypeError if inspecting undefined', function () {
+    assert(underp(testTarget, 'childObj', 'undef', 'undef') instanceof TypeError);
+  });
+  it('Returns TypeError if inspecting null', function () {
+    assert(underp(testTarget, 'childObj', 'empty', 'illegal') instanceof TypeError);
+  });
+  it('Returns Error if getter contains error', function () {
+    assert(underp(testTarget, 'sabotaged') instanceof Error);
+  });
+  it('Returns Error if key function encounters error', function () {
+    assert(underp({}, function () { throw new Error('Error in key computer'); }) instanceof Error);
   });
 });

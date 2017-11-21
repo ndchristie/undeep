@@ -59,6 +59,14 @@ Keys to search for in order.  Each returned value is searched for the following 
 
 Keys may be computed from the preceeding value by passing a function instead of a primitive.
 
+## Caveats
+
+Because it intentionally swallows errors, undeep should be used only for retrieving data which may not be defined.  Any functions passed should be side-effect free.  Be aware that simply accessing some members can have side effects, if they involve getter function.
+
+## Underp
+
+Instead of ```undefined```, ```underp()``` returns (without throwing) any error it catches along the way.  Underp should only be used for debugging.
+
 ## License
 
 ISC © [N.D.Christie](https://github.com/ndchristie)
